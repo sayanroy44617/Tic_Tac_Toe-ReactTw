@@ -5,21 +5,22 @@ const Board = () => {
   const [isXNext, setIsXNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
 
-  function handleClick(i) {
+  const resetBoard = () => {
+    setSquares(Array(9).fill(null));
+    setIsXNext(true);
+  };
+
+  const handleClick = (i) => {
     if (calculateWinner(squares) || squares[i]) return;
 
     const nextSquares = squares.slice();
+    nextSquares[i] = isXNext ? "X" : "O";
 
-    if (isXNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    setIsXNext(!isXNext);
     setSquares(nextSquares);
-  }
+    setIsXNext(!isXNext);
+  };
 
-  function calculateWinner(squares) {
+  const calculateWinner = (squares) => {
     const lines = [
       [0, 1, 2],
       [3, 4, 5],
@@ -33,24 +34,31 @@ const Board = () => {
 
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
         return squares[a];
+      }
     }
 
     return null;
-  }
+  };
 
   const winner = calculateWinner(squares);
+  const isBoardFull = squares.every((square) => square !== null);
   let status;
+
   if (winner) {
-    status = "Winner : " + winner;
+    status = "Winner: " + winner;
+  } else if (isBoardFull) {
+    status = "It's a Draw!";
   } else {
-    status = "Next Player is : " + (isXNext ? "X" : "O");
+    status = "Next Player: " + (isXNext ? "X" : "O");
   }
 
   return (
     <>
-      <div className="status">{status}</div>
+      <div className="status" data-testid="status">
+        {status}
+      </div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -68,6 +76,10 @@ const Board = () => {
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
+
+      <button onClick={resetBoard} style={{ marginTop: "10px", marginLeft: "20px" }}>
+        Reset
+      </button>
     </>
   );
 };
